@@ -71,11 +71,15 @@ class FormValidation(Validation):
             # resource.  Instead, use the output of model_to_dict for
             # validation, since that is already properly hydrated.
             for field in bundle.obj._meta.fields:
-                if field.name in bundle.data:
+                if field.name in data:
                     if not isinstance(field, RelatedField):
                         kwargs['data'][field.name] = bundle.data[field.name]
-        else:
-            kwargs['data'].update(data)
+
+        # This change is necessary for the possibility of
+        # processing custom fields when using validation forms
+        custom_keys = set(data.keys()) - set(kwargs['data'].keys())
+        for custom_key in custom_keys:
+            kwargs['data'][custom_key] = bundle.data[custom_key]
         return kwargs
 
     def is_valid(self, bundle, request=None):
