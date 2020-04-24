@@ -59,12 +59,12 @@ class FormValidation(Validation):
         if data is None:
             data = {}
 
-        kwargs = {'data': {}}
+        kwargs = {'data': data}
         if hasattr(bundle.obj, 'pk'):
             if issubclass(self.form_class, ModelForm):
                 kwargs['instance'] = bundle.obj
 
-            kwargs['data'] = model_to_dict(bundle.obj)
+            kwargs['data'].update(model_to_dict(bundle.obj))
             # iterate over the fields in the object and find those that are
             # related fields - FK, M2M, O2M, etc.  In those cases, we need
             # to *not* use the data in the bundle, since it is a URI to a
@@ -75,11 +75,6 @@ class FormValidation(Validation):
                     if not isinstance(field, RelatedField):
                         kwargs['data'][field.name] = bundle.data[field.name]
 
-        # This change is necessary for the possibility of
-        # processing custom fields when using validation forms
-        custom_keys = set(data.keys()) - set(kwargs['data'].keys())
-        for custom_key in custom_keys:
-            kwargs['data'][custom_key] = bundle.data[custom_key]
         return kwargs
 
     def is_valid(self, bundle, request=None):
