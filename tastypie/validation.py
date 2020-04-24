@@ -59,7 +59,8 @@ class FormValidation(Validation):
         if data is None:
             data = {}
 
-        kwargs = {'data': data}
+        kwargs = {'data': {}}
+        kwargs['data'].update(data)
         if hasattr(bundle.obj, 'pk'):
             if issubclass(self.form_class, ModelForm):
                 kwargs['instance'] = bundle.obj
